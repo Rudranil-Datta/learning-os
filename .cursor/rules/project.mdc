@@ -1,0 +1,135 @@
+---
+alwaysApply: true
+---
+---
+
+description: How to use project documentation and architectural references
+alwaysApply: true
+-----------------
+
+# Documentation Hierarchy
+
+Before implementing features, consult project documentation.
+
+Priority order:
+
+1. PROJECT_CONTEXT.md
+2. CHAT_FLOW.md
+3. DATABASE_DESIGN.md
+4. API_DESIGN.md
+5. FOLDER_STRUCTURE.md
+
+If documentation conflicts:
+
+PROJECT_CONTEXT.md is the source of truth.
+
+---
+
+# API Design Rules
+
+API_DESIGN.md represents the preferred API architecture.
+
+Follow API_DESIGN.md by default.
+
+Goals:
+
+* Consistent naming
+* Consistent route structure
+* Consistent request patterns
+* Consistent response patterns
+
+However:
+
+API_DESIGN.md is not immutable.
+
+If implementation reveals a better design:
+
+* Explain the proposed improvement
+* Explain benefits
+* Maintain consistency with existing endpoints
+
+Do not create inconsistent APIs.
+
+Avoid introducing multiple patterns for similar resources.
+
+Prefer resource-oriented APIs.
+
+Good examples:
+
+/api/knowledge-nodes
+/api/conversations
+/api/messages
+/api/documents
+
+Maintain consistency across the codebase.
+
+---
+
+# Folder Structure Rules
+
+FOLDER_STRUCTURE.md represents the preferred project structure.
+
+Follow it by default.
+
+Consistency is more important than novelty.
+
+The documented structure should be treated as the architectural baseline.
+
+---
+
+# Allowed Improvements
+
+Cursor may:
+
+* Create additional subfolders
+* Improve internal organization
+* Group related files
+* Extract reusable modules
+
+when doing so improves maintainability.
+
+---
+
+# Restricted Changes
+
+Do not:
+
+* Invent entirely new architectural patterns
+* Move major domains without justification
+* Introduce parallel folder structures
+* Create duplicate organizational systems
+
+Examples of undesirable behavior:
+
+services/ and use-cases/ both containing business logic
+
+repositories/ and data-access/ both containing database logic
+
+features/ and modules/ both acting as feature containers
+
+Avoid architectural drift.
+
+---
+
+# Structural Changes
+
+For significant structural changes:
+
+1. Explain the proposed change.
+2. Explain why the current structure is insufficient.
+3. Explain benefits and tradeoffs.
+4. Wait for approval before restructuring.
+
+---
+
+# Architectural Consistency
+
+Prefer:
+
+existing patterns > new patterns
+
+consistency > cleverness
+
+maintainability > optimization
+
+A slightly imperfect but consistent architecture is preferred over multiple competing architectures.

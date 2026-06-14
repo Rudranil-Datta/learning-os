@@ -1,0 +1,482 @@
+---
+alwaysApply: true
+---
+---
+
+description: Core architecture and engineering standards for Learning OS
+alwaysApply: true
+-----------------
+
+# Architecture Rules
+
+PROJECT_CONTEXT.md is the source of truth.
+
+Before making architectural decisions:
+
+* Consult PROJECT_CONTEXT.md
+* Consult CHAT_FLOW.md
+* Consult DATABASE_DESIGN.md
+* Consult API_SPEC.md
+
+Do not contradict documented architecture unless explicitly instructed.
+
+---
+
+# Core Architectural Principles
+
+Prioritize:
+
+1. Simplicity
+2. Maintainability
+3. Type Safety
+4. Scalability
+5. Readability
+
+Prefer boring and proven solutions over clever solutions.
+
+Optimize for:
+
+* Developer productivity
+* Long-term maintainability
+* Placement-quality codebase
+* Future extensibility
+
+Avoid premature optimization.
+
+---
+
+# Layered Architecture
+
+Required dependency flow:
+
+UI
+→ API Route
+→ Service
+→ Repository
+→ Database
+
+Never bypass layers.
+
+Forbidden:
+
+UI → Database
+UI → Prisma
+Route → Prisma
+Route → External API
+Route → Business Logic
+
+Business logic belongs only in Services.
+
+Database access belongs only in Repositories.
+
+---
+
+# Domain-Driven Structure
+
+Organize code by feature/domain.
+
+Prefer:
+
+features/
+knowledge-nodes/
+chat/
+notes/
+questions/
+documents/
+
+Avoid large utility-driven structures.
+
+Features should own:
+
+* Components
+* Hooks
+* Types
+* Services
+* Validation
+
+when appropriate.
+
+---
+
+# Knowledge Node First Design
+
+KnowledgeNode is the primary domain entity.
+
+All major learning operations should be designed around Knowledge Nodes.
+
+Whenever implementing:
+
+* Notes
+* Questions
+* Learning history
+* Side panel interactions
+* Documents
+
+Consider how they relate to Knowledge Nodes.
+
+Do not create parallel knowledge systems.
+
+---
+
+# API Design
+
+API routes should:
+
+* Validate input
+* Authenticate user
+* Call service
+* Return response
+
+Nothing else.
+
+Routes should remain thin.
+
+Maximum route complexity:
+~50 lines
+
+Move complexity into services.
+
+---
+
+# Service Layer Rules
+
+Services contain:
+
+* Business logic
+* Workflow orchestration
+* Domain rules
+* Permission checks
+
+Services should not:
+
+* Know HTTP details
+* Access request objects
+* Return framework-specific responses
+
+Services return plain objects.
+
+---
+
+# Repository Rules
+
+Repositories contain:
+
+* Prisma queries
+* Transactions
+* Persistence logic
+
+Repositories should not:
+
+* Contain business logic
+* Call LLMs
+* Call APIs
+* Access session data
+
+Repositories should be easily replaceable.
+
+---
+
+# TypeScript Standards
+
+Strict mode required.
+
+Never use:
+
+* any
+* ts-ignore
+* ts-expect-error
+
+Prefer:
+
+* interfaces
+* discriminated unions
+* utility types
+* readonly where appropriate
+
+All exported functions must have explicit return types.
+
+---
+
+# Validation Rules
+
+All external input must be validated.
+
+Use Zod.
+
+Validate:
+
+* API requests
+* Query parameters
+* Form data
+* LLM structured outputs
+
+Never trust client input.
+
+Never trust AI output.
+
+---
+
+# Error Handling
+
+All expected errors must be handled.
+
+Use custom error hierarchy.
+
+Example:
+
+AppError
+ValidationError
+NotFoundError
+UnauthorizedError
+ConflictError
+
+Never throw generic Error when a domain error exists.
+
+Never expose internal stack traces.
+
+Always return user-safe error messages.
+
+Log internal details separately.
+
+---
+
+# Async Rules
+
+Use async/await.
+
+Avoid chained promises.
+
+Handle failures explicitly.
+
+No silent failures.
+
+No empty catch blocks.
+
+Every catch block must:
+
+* Handle
+* Transform
+* Log
+* Or rethrow
+
+---
+
+# Logging
+
+Log:
+
+* Unexpected errors
+* Failed external calls
+* Important domain events
+
+Do not log:
+
+* Secrets
+* API keys
+* Tokens
+* Sensitive user content
+
+Logs must be structured.
+
+---
+
+# Database Rules
+
+Use Prisma.
+
+Select only required fields.
+
+Avoid:
+
+include: true
+
+Prefer explicit selects.
+
+Prevent N+1 query patterns.
+
+Use transactions for:
+
+* Multi-write operations
+* Related entity creation
+* State transitions
+
+---
+
+# Performance Rules
+
+Optimize only after correctness.
+
+Prefer:
+
+* Pagination
+* Lazy loading
+* Memoization when justified
+
+Avoid:
+
+* Premature caching
+* Complex optimization
+* Unnecessary abstraction
+
+Measure before optimizing.
+
+---
+
+# React and Next.js Standards
+
+Prefer:
+
+Server Components by default.
+
+Use Client Components only when required.
+
+Use Server Actions when appropriate.
+
+Minimize client-side state.
+
+Keep business logic out of components.
+
+Components should primarily:
+
+* Render UI
+* Handle user interaction
+
+---
+
+# State Management
+
+Prefer:
+
+1. Server state
+2. URL state
+3. Local component state
+
+Avoid global state unless justified.
+
+Do not introduce state libraries without strong need.
+
+---
+
+# AI and LLM Integration
+
+All LLM interactions must pass through dedicated services.
+
+Never call LLMs directly from:
+
+* Components
+* API routes
+
+Use structured outputs whenever possible.
+
+Treat AI output as untrusted data.
+
+Validate responses before persistence.
+
+---
+
+# File Size Limits
+
+Target:
+
+Component:
+< 200 lines
+
+Service:
+< 300 lines
+
+Repository:
+< 300 lines
+
+If a file becomes difficult to understand:
+split it.
+
+---
+
+# Reusability Rules
+
+Extract shared logic only after duplication appears.
+
+Avoid speculative abstractions.
+
+Prefer clarity over reuse.
+
+---
+
+# Naming Conventions
+
+Use explicit names.
+
+Good:
+
+KnowledgeNodeService
+GenerateNotesUseCase
+CreateConversationInput
+
+Bad:
+
+Manager
+Helper
+Utils
+Handler
+
+Names should describe responsibility.
+
+---
+
+# Security Rules
+
+Never trust:
+
+* User input
+* Uploaded files
+* AI output
+
+Validate everything.
+
+Authorize every protected action.
+
+Users may only access their own data.
+
+---
+
+# Testing Mindset
+
+Write code that is testable.
+
+Prefer dependency injection where useful.
+
+Avoid hidden dependencies.
+
+Keep business logic isolated from framework code.
+
+---
+
+# Modification Rules
+
+Before modifying existing code:
+
+* Understand current implementation
+* Preserve patterns
+* Make smallest reasonable change
+
+Do not rewrite working code unnecessarily.
+
+Do not refactor unrelated files.
+
+---
+
+# Architecture Preservation
+
+When uncertain:
+
+Choose consistency over novelty.
+
+When multiple solutions exist:
+
+Choose the solution that:
+
+* Matches existing architecture
+* Is easiest to maintain
+* Is easiest for new contributors to understand
+
+The simplest correct solution is usually the best solution.
