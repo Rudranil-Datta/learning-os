@@ -96,7 +96,6 @@ Do not:
 
 * Invent entirely new architectural patterns
 * Move major domains without justification
-* Introduce parallel folder structures
 * Create duplicate organizational systems
 
 Examples of undesirable behavior:

@@ -14,9 +14,9 @@ PROJECT_CONTEXT.md is the source of truth.
 Before making architectural decisions:
 
 * Consult PROJECT_CONTEXT.md
-* Consult CHAT_FLOW.md
+* Consult DATAFLOW.md
 * Consult DATABASE_DESIGN.md
-* Consult API_SPEC.md
+* Consult API_DESIGN.md
 
 Do not contradict documented architecture unless explicitly instructed.
 
