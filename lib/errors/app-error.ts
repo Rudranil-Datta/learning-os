@@ -3,6 +3,8 @@ export type AppErrorCode =
   | "NOT_FOUND"
   | "CONFLICT"
   | "UNAUTHORIZED"
+  | "LLM_CONFIGURATION_ERROR"
+  | "LLM_REQUEST_ERROR"
   | "INTERNAL_ERROR";
 
 export class AppError extends Error {

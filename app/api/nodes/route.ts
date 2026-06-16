@@ -6,7 +6,7 @@ import {
   toValidationDetails,
 } from "@/lib/api/error-handler";
 import { ValidationError } from "@/lib/errors/app-error";
-import { createKnowledgeNodeSchema } from "@/lib/validation/knowledge-node.schema";
+import { createKnowledgeNodeSchema, parseNodeSearchQueryParam } from "@/lib/validation/knowledge-node.schema";
 import {
   toCreateKnowledgeNodeInput,
   toKnowledgeNodeResponse,
@@ -14,9 +14,19 @@ import {
 
 const knowledgeNodeService = createKnowledgeNodeService();
 
-export async function GET(): Promise<NextResponse> {
+export async function GET(request: Request): Promise<NextResponse> {
   try {
-    const nodes = await knowledgeNodeService.listNodes();
+    const { searchParams } = new URL(request.url);
+    const parsedQuery = parseNodeSearchQueryParam(searchParams.get("q"));
+
+    if (!parsedQuery.success) {
+      throw new ValidationError(
+        "Invalid search query",
+        toValidationDetails(parsedQuery.error),
+      );
+    }
+
+    const nodes = await knowledgeNodeService.listNodes(parsedQuery.searchQuery);
 
     return NextResponse.json({
       nodes: nodes.map(toKnowledgeNodeResponse),

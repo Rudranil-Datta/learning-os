@@ -1,4 +1,7 @@
 import type { Prisma, PrismaClient } from "@/app/generated/prisma/client";
+import {
+  KNOWLEDGE_NODE_TSQUERY_CONFIG,
+} from "@/lib/utils/search";
 import type {
   CreateKnowledgeNodeInput,
   KnowledgeNodeRecord,
@@ -45,6 +48,34 @@ function asNodeMetadata(value: Prisma.JsonValue): NodeMetadata {
 
 function toInputJsonValue(metadata: NodeMetadata): Prisma.InputJsonValue {
   return metadata as Prisma.InputJsonValue;
+}
+
+type KnowledgeNodeSearchRow = {
+  id: string;
+  title: string;
+  description: string | null;
+  explanation: string | null;
+  summary: string | null;
+  metadata: Prisma.JsonValue;
+  userId: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+function mapKnowledgeNodeFromSearchRow(
+  row: KnowledgeNodeSearchRow,
+): KnowledgeNodeRecord {
+  return {
+    id: row.id,
+    title: row.title,
+    description: row.description,
+    explanation: row.explanation,
+    summary: row.summary,
+    metadata: asNodeMetadata(row.metadata),
+    userId: row.userId,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+  };
 }
 
 function mapKnowledgeNode(row: KnowledgeNodeRow): KnowledgeNodeRecord {
@@ -139,6 +170,31 @@ export class KnowledgeNodeRepository {
     });
 
     return rows.map(mapKnowledgeNode);
+  }
+
+  async searchByUserId(
+    userId: string,
+    query: string,
+  ): Promise<KnowledgeNodeRecord[]> {
+    const rows = await this.db.$queryRaw<KnowledgeNodeSearchRow[]>`
+      SELECT
+        id,
+        title,
+        description,
+        explanation,
+        summary,
+        metadata,
+        user_id AS "userId",
+        created_at AS "createdAt",
+        updated_at AS "updatedAt"
+      FROM knowledge_nodes
+      WHERE user_id = ${userId}::uuid
+        AND to_tsvector(${KNOWLEDGE_NODE_TSQUERY_CONFIG}, title || ' ' || COALESCE(description, ''))
+          @@ plainto_tsquery(${KNOWLEDGE_NODE_TSQUERY_CONFIG}, ${query})
+      ORDER BY updated_at DESC
+    `;
+
+    return rows.map(mapKnowledgeNodeFromSearchRow);
   }
 
   async findById(

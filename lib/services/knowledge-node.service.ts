@@ -2,6 +2,7 @@ import { Prisma } from "@/app/generated/prisma/client";
 import { DEFAULT_USER_ID } from "@/lib/constants/user";
 import { KnowledgeNodeRepository } from "@/lib/db/queries/nodes";
 import { ConflictError, NotFoundError } from "@/lib/errors/app-error";
+import { normalizeSearchQuery } from "@/lib/utils/search";
 import type {
   CreateKnowledgeNodeInput,
   KnowledgeNodeRecord,
@@ -21,8 +22,18 @@ export class KnowledgeNodeService {
     private readonly userId: string = DEFAULT_USER_ID,
   ) {}
 
-  async listNodes(): Promise<readonly KnowledgeNodeRecord[]> {
-    return this.repository.listByUserId(this.userId);
+  async listNodes(searchQuery?: string): Promise<readonly KnowledgeNodeRecord[]> {
+    if (searchQuery === undefined) {
+      return this.repository.listByUserId(this.userId);
+    }
+
+    const normalizedQuery = normalizeSearchQuery(searchQuery);
+
+    if (normalizedQuery === null) {
+      return this.repository.listByUserId(this.userId);
+    }
+
+    return this.repository.searchByUserId(this.userId, normalizedQuery);
   }
 
   async getNodeById(id: string): Promise<KnowledgeNodeWithLinks> {
