@@ -44,3 +44,18 @@ export interface UpdateKnowledgeNodeInput {
   readonly summary?: string | null;
   readonly metadata?: NodeMetadata;
 }
+
+export interface SuggestedNodeDraft {
+  readonly title: string;
+  readonly description: string | null;
+}
+
+export interface NodeExtractorInput {
+  readonly question: string;
+  readonly answer: string;
+  readonly existingNodeTitles?: readonly string[];
+}
+
+export interface NodeExtractorResult {
+  readonly suggestions: readonly SuggestedNodeDraft[];
+}

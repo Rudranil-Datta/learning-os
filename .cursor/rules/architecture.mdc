@@ -17,6 +17,7 @@ Before making architectural decisions:
 * Consult DATAFLOW.md
 * Consult DATABASE_DESIGN.md
 * Consult API_DESIGN.md
+* Consult SYSTEM_ARCHITECTURE.md
 
 Do not contradict documented architecture unless explicitly instructed.
 

@@ -3,6 +3,7 @@ import type {
   LinkType,
   NodeLinksGrouped,
   NodeMetadata,
+  SuggestedNodeDraft,
   UpdateKnowledgeNodeInput,
 } from "@/types/database";
 
@@ -46,6 +47,37 @@ export interface ApiErrorResponse {
   readonly error: string;
   readonly code: string;
   readonly details?: unknown;
+}
+
+export interface ChatRequest {
+  readonly message: string;
+  readonly conversationId?: string;
+}
+
+export interface SuggestedNodeResponse {
+  readonly title: string;
+  readonly description: string | null;
+}
+
+export interface ChatResponse {
+  readonly answer: string;
+  readonly conversationId: string | null;
+  readonly suggestedNodes: readonly SuggestedNodeResponse[];
+}
+
+export function toSuggestedNodeResponse(
+  draft: SuggestedNodeDraft,
+): SuggestedNodeResponse {
+  return {
+    title: draft.title,
+    description: draft.description,
+  };
+}
+
+export function toSuggestedNodeResponses(
+  drafts: readonly SuggestedNodeDraft[],
+): readonly SuggestedNodeResponse[] {
+  return drafts.map(toSuggestedNodeResponse);
 }
 
 export type { CreateKnowledgeNodeInput, LinkType, UpdateKnowledgeNodeInput };

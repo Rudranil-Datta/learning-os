@@ -1,16 +1,65 @@
 # Current Phase
 
-Phase 1 — Week 1 Foundation (Day 7 complete)
+Phase 2 — Week 2 Main Chat (Day 9 complete)
 
 # Current Task
 
-Day 8 — Main chat orchestrator (`lib/agents/orchestrator.ts`)
+Day 10 — `pending_node_suggestions` table + save suggestions
 
-# Day 8 — Task breakdown (current day)
+# Day 9 — Task breakdown (complete)
 
 | # | Task | Files | Status |
 |---|------|-------|--------|
-| — | Plan Day 8 before implementation | — | pending |
+| 1 | Extractor contract + Zod schema for LLM JSON | `types/database.ts`, `lib/validation/node-extractor.schema.ts` | done |
+| 2 | `NodeExtractor` agent (prompt → `callOpenAI` → parse) | `lib/agents/nodeExtractor.ts` | done |
+| 3 | Wire orchestrator → extractor after answer | `lib/agents/orchestrator.ts` | done |
+| 4 | Pass `suggestedNodes` through service/API | `lib/services/chat.service.ts`, `types/api.ts`, `scripts/test-chat.ts` | done |
+| 5 | Extractor test script | `scripts/test-extractor.ts`, `package.json` | done |
+| 6 | Milestone update | `IMPLEMENTATION_STATUS.md` | done |
+
+## Definition of Done (Day 9)
+
+- [x] `NodeExtractor` returns validated `{ title, description }[]` from Q&A via `callOpenAI()`
+- [x] Zod parse + empty array on bad JSON (no throw)
+- [x] Filters duplicates against `existingNodeTitles`
+- [x] `MainChatOrchestrator` invokes extractor after answer
+- [x] `POST /api/chat` returns non-empty `suggestedNodes` when concepts present
+- [x] `npm run extractor:test` and `npm run chat:test` pass
+- [x] No `pending_node_suggestions` persistence yet (Day 10)
+- [x] No chat UI / confirm-reject endpoints yet (Day 11–12)
+
+## Deferred from original Day 9 dataflow (accepted)
+
+- **`pending_node_suggestions` DB save** — Day 10
+- **Suggestion pills UI** — Day 12
+- **Confirm/reject API** — Day 12
+
+# Day 8 — Task breakdown (complete)
+
+| # | Task | Files | Status |
+|---|------|-------|--------|
+| 1 | Orchestrator contract + prompt shape | `lib/agents/orchestrator.ts`, `types/api.ts` | done |
+| 2 | Conversation/message repository layer | `lib/db/queries/conversations.ts`, `lib/db/queries/messages.ts` | done |
+| 3 | Chat service wrapper (orchestrator + repos) | `lib/services/chat.service.ts` | done |
+| 4 | `POST /api/chat` route + validation | `app/api/chat/route.ts`, `lib/validation/chat.schema.ts`, `lib/api/error-handler.ts` | done |
+| 5 | Milestone update | `IMPLEMENTATION_STATUS.md` | done |
+
+## Definition of Done (Day 8)
+
+- [x] `MainChatOrchestrator` searches nodes, builds prompt (top 5), calls `callOpenAI()`
+- [x] `ConversationRepository` + `MessageRepository` (get/create main conv, save msgs, recent history)
+- [x] `ChatService.sendMessage()` — Route → Service → Repository → orchestrator
+- [x] `POST /api/chat` validates body, returns `{ answer, conversationId, suggestedNodes }`
+- [x] Messages saved after successful LLM response (user + assistant)
+- [x] `suggestedNodes` empty stub — Day 9 extractor + Day 10 persistence deferred
+- [x] No chat UI, no `pending_node_suggestions` table, no NodeExtractor yet
+
+## Deferred from original Day 8 dataflow (accepted)
+
+- **NodeExtractor** — Day 9
+- **`pending_node_suggestions` persistence** — Day 10
+- **Chat UI** — Day 11
+- **Auto-linking on confirm** — Day 13
 
 # Day 7 — Task breakdown (complete)
 
@@ -60,6 +109,8 @@ Day 8 — Main chat orchestrator (`lib/agents/orchestrator.ts`)
 - Search verification script (`scripts/verify-search-index.ts`, `npm run db:verify-search`)
 - Day 7 LLM layer: `LLMProvider`, OpenAI provider, `callOpenAI`, env factory, LLM errors
 - `.env.example` + `npm run llm:test` (verified gpt-4o-mini connection)
+- Day 8 main chat backend: orchestrator, conv/msg repos, `ChatService`, `POST /api/chat`
+- Day 9 node extractor: `NodeExtractor`, orchestrator wiring, `suggestedNodes` in API, `extractor:test` + `chat:test`
 
 # In Progress
 
@@ -67,9 +118,11 @@ Day 8 — Main chat orchestrator (`lib/agents/orchestrator.ts`)
 
 # Pending
 
-- Day 8: Main chat orchestrator
+- Day 10: `pending_node_suggestions` table + save suggestions
+- Day 11: Chat UI + `/api/chat` client wiring
+- Day 12–14: Suggestion pills, confirm/reject, auto-link, e2e main chat
 - Post–Day 6: `pg_trgm`, `websearch_to_tsquery`, pagination
-- Week 3: `node_links` tree index
+- Week 3: knowledge tree + side panel
 - Later: Gemini provider, LangChain (only if RAG/multi-agent needed)
 
 # Definition of Done (Day 6)

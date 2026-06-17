@@ -14,8 +14,9 @@ Before implementing features, consult project documentation.
 Priority order:
 
 1. PROJECT_CONTEXT.md
-2. CHAT_FLOW.md
+2. DATAFLOW.md
 3. DATABASE_DESIGN.md
+4. AGENT-WORKFLOW.md
 4. API_DESIGN.md
 5. FOLDER_STRUCTURE.md
 
