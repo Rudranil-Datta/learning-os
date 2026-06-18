@@ -3,7 +3,7 @@ import type {
   LinkType,
   NodeLinksGrouped,
   NodeMetadata,
-  SuggestedNodeDraft,
+  PendingNodeSuggestionRecord,
   UpdateKnowledgeNodeInput,
 } from "@/types/database";
 
@@ -55,6 +55,7 @@ export interface ChatRequest {
 }
 
 export interface SuggestedNodeResponse {
+  readonly id: string;
   readonly title: string;
   readonly description: string | null;
 }
@@ -66,18 +67,19 @@ export interface ChatResponse {
 }
 
 export function toSuggestedNodeResponse(
-  draft: SuggestedNodeDraft,
+  record: PendingNodeSuggestionRecord,
 ): SuggestedNodeResponse {
   return {
-    title: draft.title,
-    description: draft.description,
+    id: record.id,
+    title: record.title,
+    description: record.description,
   };
 }
 
 export function toSuggestedNodeResponses(
-  drafts: readonly SuggestedNodeDraft[],
+  records: readonly PendingNodeSuggestionRecord[],
 ): readonly SuggestedNodeResponse[] {
-  return drafts.map(toSuggestedNodeResponse);
+  return records.map(toSuggestedNodeResponse);
 }
 
 export type { CreateKnowledgeNodeInput, LinkType, UpdateKnowledgeNodeInput };

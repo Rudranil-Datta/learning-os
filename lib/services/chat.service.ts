@@ -1,3 +1,5 @@
+import type { PrismaClient } from "@/app/generated/prisma/client";
+
 import {
   MainChatOrchestrator,
   createNodeLookupFromService,
@@ -6,6 +8,7 @@ import { DEFAULT_USER_ID } from "@/lib/constants/user";
 import { ConversationRepository } from "@/lib/db/queries/conversations";
 import type { MessageRecord } from "@/lib/db/queries/messages";
 import { MessageRepository } from "@/lib/db/queries/messages";
+import { SuggestionRepository } from "@/lib/db/queries/suggestions";
 import { ValidationError } from "@/lib/errors/app-error";
 import type { KnowledgeNodeService } from "@/lib/services/knowledge-node.service";
 import type { ChatRequest, ChatResponse } from "@/types/api";
@@ -29,8 +32,10 @@ export class ChatService {
   private readonly orchestrator: MainChatOrchestrator;
 
   constructor(
+    private readonly db: PrismaClient,
     private readonly conversationRepository: ConversationRepository,
     private readonly messageRepository: MessageRepository,
+    private readonly suggestionRepository: SuggestionRepository,
     knowledgeNodeService: KnowledgeNodeService,
     private readonly userId: string = DEFAULT_USER_ID,
     orchestrator?: MainChatOrchestrator,
@@ -64,22 +69,44 @@ export class ChatService {
       history: toChatHistory(history),
     });
 
-    await this.messageRepository.create({
-      conversationId: conversation.id,
-      role: "user",
-      content: message,
-    });
+    const persistedSuggestions = await this.db.$transaction(async (tx) => {
+      await this.messageRepository.create(
+        {
+          conversationId: conversation.id,
+          role: "user",
+          content: message,
+        },
+        tx,
+      );
 
-    await this.messageRepository.create({
-      conversationId: conversation.id,
-      role: "assistant",
-      content: result.answer,
+      await this.messageRepository.create(
+        {
+          conversationId: conversation.id,
+          role: "assistant",
+          content: result.answer,
+        },
+        tx,
+      );
+
+      if (result.suggestedNodes.length === 0) {
+        return [];
+      }
+
+      return this.suggestionRepository.createMany(
+        result.suggestedNodes.map((draft) => ({
+          userId: this.userId,
+          conversationId: conversation.id,
+          title: draft.title,
+          description: draft.description,
+        })),
+        tx,
+      );
     });
 
     return {
       answer: result.answer,
       conversationId: conversation.id,
-      suggestedNodes: toSuggestedNodeResponses(result.suggestedNodes),
+      suggestedNodes: toSuggestedNodeResponses(persistedSuggestions),
     };
   }
 }

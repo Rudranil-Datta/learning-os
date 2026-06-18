@@ -14,6 +14,8 @@ type MessageRow = Prisma.MessageGetPayload<{
   select: typeof messageSelect;
 }>;
 
+type DbExecutor = PrismaClient | Prisma.TransactionClient;
+
 export interface MessageRecord {
   readonly id: string;
   readonly conversationId: string;
@@ -47,12 +49,15 @@ function mapMessage(
 export class MessageRepository {
   constructor(private readonly db: PrismaClient) {}
 
-  async create(params: {
-    readonly conversationId: string;
-    readonly role: "user" | "assistant";
-    readonly content: string;
-  }): Promise<MessageRecord> {
-    const row = await this.db.message.create({
+  async create(
+    params: {
+      readonly conversationId: string;
+      readonly role: "user" | "assistant";
+      readonly content: string;
+    },
+    db: DbExecutor = this.db,
+  ): Promise<MessageRecord> {
+    const row = await db.message.create({
       data: {
         conversationId: params.conversationId,
         role: params.role,
@@ -87,7 +92,7 @@ export class MessageRepository {
     });
 
     return rows
-      .map(mapMessage)
+      .map((row) => mapMessage(row))
       .filter((message): message is MessageRecord => message !== null)
       .reverse();
   }

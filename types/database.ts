@@ -1,5 +1,17 @@
 export type LinkType = "parent" | "child" | "related";
 
+export const SUGGESTION_STATUS = {
+  pending: "pending",
+  confirmed: "confirmed",
+  rejected: "rejected",
+} as const;
+
+export type SuggestionStatus =
+  (typeof SUGGESTION_STATUS)[keyof typeof SUGGESTION_STATUS];
+
+export const DEFAULT_SUGGESTION_STATUS: SuggestionStatus =
+  SUGGESTION_STATUS.pending;
+
 export type NodeMetadata = Record<string, unknown>;
 
 export interface KnowledgeNodeRecord {
@@ -58,4 +70,22 @@ export interface NodeExtractorInput {
 
 export interface NodeExtractorResult {
   readonly suggestions: readonly SuggestedNodeDraft[];
+}
+
+export interface PendingNodeSuggestionRecord {
+  readonly id: string;
+  readonly userId: string;
+  readonly conversationId: string;
+  readonly title: string;
+  readonly description: string | null;
+  readonly status: SuggestionStatus;
+  readonly createdAt: Date;
+}
+
+export interface CreatePendingNodeSuggestionInput {
+  readonly userId: string;
+  readonly conversationId: string;
+  readonly title: string;
+  readonly description?: string | null;
+  readonly status?: SuggestionStatus;
 }

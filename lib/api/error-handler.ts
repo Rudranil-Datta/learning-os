@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db/client";
 import { ConversationRepository } from "@/lib/db/queries/conversations";
 import { MessageRepository } from "@/lib/db/queries/messages";
 import { KnowledgeNodeRepository } from "@/lib/db/queries/nodes";
+import { SuggestionRepository } from "@/lib/db/queries/suggestions";
 import { isAppError } from "@/lib/errors/app-error";
 import { ChatService } from "@/lib/services/chat.service";
 import { KnowledgeNodeService } from "@/lib/services/knowledge-node.service";
@@ -17,8 +18,10 @@ export function createChatService(): ChatService {
   const knowledgeNodeService = createKnowledgeNodeService();
 
   return new ChatService(
+    prisma,
     new ConversationRepository(prisma),
     new MessageRepository(prisma),
+    new SuggestionRepository(prisma),
     knowledgeNodeService,
   );
 }

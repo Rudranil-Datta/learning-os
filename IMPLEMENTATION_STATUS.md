@@ -1,10 +1,38 @@
 # Current Phase
 
-Phase 2 — Week 2 Main Chat (Day 9 complete)
+Phase 2 — Week 2 Main Chat (Day 10 complete)
 
 # Current Task
 
-Day 10 — `pending_node_suggestions` table + save suggestions
+Day 11 — Chat UI + `/api/chat` client wiring
+
+# Day 10 — Task breakdown (complete)
+
+| # | Task | Files | Status |
+|---|------|-------|--------|
+| 1 | Prisma model + `SuggestionStatus` enum + migration | `prisma/schema.prisma`, `prisma/migrations/20260617155039_add_pending_node_suggestions/` | done |
+| 2 | Domain types + status constants | `types/database.ts` | done |
+| 3 | `SuggestionRepository.createMany` | `lib/db/queries/suggestions.ts` | done |
+| 4 | Persist suggestions in chat flow (transaction with messages) | `lib/services/chat.service.ts`, `lib/db/queries/messages.ts`, `lib/api/error-handler.ts` | done |
+| 5 | `id` on `SuggestedNodeResponse` | `types/api.ts` | done |
+| 6 | `chat:test` DB persistence asserts | `scripts/test-chat.ts` | done |
+| 7 | Milestone update | `IMPLEMENTATION_STATUS.md` | done |
+
+## Definition of Done (Day 10)
+
+- [x] `pending_node_suggestions` table matches `DATABASE_DESIGN.md` (columns + indexes)
+- [x] `ChatService.sendMessage()` persists suggestions with `status='pending'`
+- [x] Messages + suggestions saved atomically in one transaction
+- [x] `POST /api/chat` returns `suggestedNodes` with `{ id, title, description }`
+- [x] `npm run chat:test` passes and verifies DB rows
+- [x] No confirm/reject routes yet (Day 12)
+- [x] No chat UI yet (Day 11)
+
+## Deferred from original Day 10 scope (accepted)
+
+- **Suggestion pills UI** — Day 12
+- **Confirm/reject API** — Day 12
+- **Pending suggestion dedupe across chats** — optional; not required V1
 
 # Day 9 — Task breakdown (complete)
 
@@ -111,6 +139,7 @@ Day 10 — `pending_node_suggestions` table + save suggestions
 - `.env.example` + `npm run llm:test` (verified gpt-4o-mini connection)
 - Day 8 main chat backend: orchestrator, conv/msg repos, `ChatService`, `POST /api/chat`
 - Day 9 node extractor: `NodeExtractor`, orchestrator wiring, `suggestedNodes` in API, `extractor:test` + `chat:test`
+- Day 10 suggestion persistence: `pending_node_suggestions` table, `SuggestionRepository`, transactional save in `ChatService`, `id` in API response, `chat:test` DB verification
 
 # In Progress
 
@@ -118,7 +147,6 @@ Day 10 — `pending_node_suggestions` table + save suggestions
 
 # Pending
 
-- Day 10: `pending_node_suggestions` table + save suggestions
 - Day 11: Chat UI + `/api/chat` client wiring
 - Day 12–14: Suggestion pills, confirm/reject, auto-link, e2e main chat
 - Post–Day 6: `pg_trgm`, `websearch_to_tsquery`, pagination
