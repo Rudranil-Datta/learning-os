@@ -1,10 +1,44 @@
 # Current Phase
 
-Phase 2 — Week 2 Main Chat (Day 10 complete)
+Phase 2 — Week 2 Main Chat (Day 11 complete)
 
 # Current Task
 
-Day 11 — Chat UI + `/api/chat` client wiring
+Day 12 — Suggestion pills (confirm/dismiss) + confirm/reject API
+
+# Day 11 — Task breakdown (complete)
+
+| # | Task | Files | Status |
+|---|------|-------|--------|
+| 1 | Chat API client (`sendMessage`, error typing) | `lib/api/chat-client.ts` | done |
+| 2 | Message + read-only suggestion chip components | `components/ChatMessage.tsx`, `components/SuggestionChip.tsx` | done |
+| 3 | Main chat UI (input, history, loading, errors) | `components/ChatInterface.tsx` | done |
+| 4 | Dashboard shell: chat center + side panel placeholder | `app/(dashboard)/page.tsx`, `components/SidePanelPlaceholder.tsx`, `app/(dashboard)/layout.tsx` | done |
+| 5 | Client state: messages, `conversationId`, send flow | `components/ChatInterface.tsx` | done |
+| 6 | Browser smoke + milestone update | manual check, `IMPLEMENTATION_STATUS.md` | done |
+
+## Definition of Done (Day 11)
+
+- [x] `/` shows working main chat (send → answer → history grows)
+- [x] `conversationId` reused across messages in session
+- [x] Read-only suggestion chips under assistant reply (`title`; `id` available for Day 12)
+- [x] Loading + error states; Send disabled while pending
+- [x] Message bubbles (user right, assistant left); indigo accent on primary actions
+- [x] Side panel placeholder on large screens (“Select a node to explore”) — no `/api/sidechat` yet
+- [x] Grid layout ready for Week 3 side panel (`lg:grid-cols-3` or equivalent)
+- [x] No confirm/dismiss pills, no confirm/reject API (Day 12)
+
+## Smoke verification (Day 11)
+
+- [x] `npm run build` passes
+- [x] `npm run chat:test` passes (API + DB persistence)
+- [x] Browser: `/` renders Main chat, Send, side panel placeholder, Chat/Nodes nav
+
+## Accepted scope vs original roadmap
+
+- **`UI_DESIGN.md`:** Dashboard split view + placeholder panel early; full side-panel chat stays Week 3 (Days 17–21)
+- **`PROJECT_CONTEXT.md` Day 11:** Chat UI only — interactive suggestion pills deferred to Day 12
+- **`/api/chat` route:** Already shipped Day 8 — Day 11 is client + UI only
 
 # Day 10 — Task breakdown (complete)
 
@@ -130,7 +164,7 @@ Day 11 — Chat UI + `/api/chat` client wiring
 - Nodes API client (`lib/api/nodes-client.ts`)
 - `NodeCard`, `CreateNodeForm`, `NodeList`, `NodeSearch` components
 - Nodes page (`app/(dashboard)/nodes/page.tsx`)
-- Dashboard layout + home nav (`app/(dashboard)/layout.tsx`, `app/page.tsx`)
+- Dashboard layout + chat home at `app/(dashboard)/page.tsx`, nodes nav
 - Day 4 browser verification (home → nodes, create, list refresh path, 409 duplicate)
 - Day 5 index audit + sample seed + unique index verification
 - Day 6 full-text search: GIN migration, search utils, repo/service/API, search UI
@@ -140,6 +174,7 @@ Day 11 — Chat UI + `/api/chat` client wiring
 - Day 8 main chat backend: orchestrator, conv/msg repos, `ChatService`, `POST /api/chat`
 - Day 9 node extractor: `NodeExtractor`, orchestrator wiring, `suggestedNodes` in API, `extractor:test` + `chat:test`
 - Day 10 suggestion persistence: `pending_node_suggestions` table, `SuggestionRepository`, transactional save in `ChatService`, `id` in API response, `chat:test` DB verification
+- Day 11 chat UI: `chat-client`, `ChatInterface`, read-only suggestion chips, dashboard grid + side panel placeholder at `/`
 
 # In Progress
 
@@ -147,8 +182,7 @@ Day 11 — Chat UI + `/api/chat` client wiring
 
 # Pending
 
-- Day 11: Chat UI + `/api/chat` client wiring
-- Day 12–14: Suggestion pills, confirm/reject, auto-link, e2e main chat
+- Day 12–14: Suggestion pills (confirm/dismiss), confirm/reject API, auto-link, e2e main chat
 - Post–Day 6: `pg_trgm`, `websearch_to_tsquery`, pagination
 - Week 3: knowledge tree + side panel
 - Later: Gemini provider, LangChain (only if RAG/multi-agent needed)
