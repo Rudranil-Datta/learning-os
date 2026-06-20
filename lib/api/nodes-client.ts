@@ -1,6 +1,7 @@
 import type {
   ApiErrorResponse,
   CreateKnowledgeNodeRequest,
+  KnowledgeNodeDetailResponse,
   KnowledgeNodeListResponse,
   KnowledgeNodeResponse,
   KnowledgeTreeNode,
@@ -89,6 +90,17 @@ export async function getKnowledgeTree(): Promise<readonly KnowledgeTreeNode[]> 
   const data = await parseApiResponse<KnowledgeTreeResponse>(response);
 
   return data.tree;
+}
+
+export async function getNodeById(
+  nodeId: string,
+): Promise<KnowledgeNodeDetailResponse> {
+  const response = await fetch(`/api/nodes/${encodeURIComponent(nodeId)}`, {
+    method: "GET",
+    cache: "no-store",
+  });
+
+  return parseApiResponse<KnowledgeNodeDetailResponse>(response);
 }
 
 export async function createNode(

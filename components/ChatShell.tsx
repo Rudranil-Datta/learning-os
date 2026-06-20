@@ -4,9 +4,11 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { ChatInterface } from "@/components/ChatInterface";
 import { ChatSidebar } from "@/components/ChatSidebar";
-import { SidePanelPlaceholder } from "@/components/SidePanelPlaceholder";
+import { ContextualSidePanel } from "@/components/ContextualSidePanel";
+import { KnowledgeTree } from "@/components/KnowledgeTree";
 import {
   createConversation,
+  getOrCreateSideConversation,
   isConversationsApiError,
   listConversations,
 } from "@/lib/api/conversations-client";
@@ -38,6 +40,19 @@ export function ChatShell(): React.JSX.Element {
   const [isBootstrapping, setIsBootstrapping] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [treeRefreshToken, setTreeRefreshToken] = useState(0);
+  const [selectedNode, setSelectedNode] = useState<{
+    readonly id: string;
+    readonly title: string;
+  } | null>(null);
+  const [sideConversationId, setSideConversationId] = useState<string | null>(
+    null,
+  );
+  const [isSideConversationLoading, setIsSideConversationLoading] =
+    useState(false);
+  const [sideConversationError, setSideConversationError] = useState<
+    string | null
+  >(null);
 
   const refreshConversations = useCallback(async (): Promise<
     readonly ConversationSummaryResponse[]
@@ -136,6 +151,35 @@ export function ChatShell(): React.JSX.Element {
     }
   }
 
+  async function handleNodeSelect(nodeId: string, title: string): Promise<void> {
+    setSelectedNode({ id: nodeId, title });
+    setSideConversationId(null);
+    setSideConversationError(null);
+    setIsSideConversationLoading(true);
+
+    try {
+      const conversation = await getOrCreateSideConversation({
+        contextNodeId: nodeId,
+      });
+      setSideConversationId(conversation.id);
+    } catch (sideError: unknown) {
+      if (isConversationsApiError(sideError)) {
+        setSideConversationError(sideError.message);
+      } else {
+        setSideConversationError("Could not open node session. Try again.");
+      }
+    } finally {
+      setIsSideConversationLoading(false);
+    }
+  }
+
+  function handleCloseSidePanel(): void {
+    setSelectedNode(null);
+    setSideConversationId(null);
+    setSideConversationError(null);
+    setIsSideConversationLoading(false);
+  }
+
   if (isBootstrapping) {
     return (
       <div className="flex h-full w-full items-center justify-center p-6">
@@ -203,13 +247,48 @@ export function ChatShell(): React.JSX.Element {
                 onConversationActivity={() => {
                   void handleConversationActivity();
                 }}
+                onNodeConfirmed={() => {
+                  setTreeRefreshToken((current) => current + 1);
+                }}
               />
             </div>
           ) : null}
         </div>
 
-        <aside className="hidden min-h-0 w-80 shrink-0 p-4 xl:block">
-          <SidePanelPlaceholder />
+        <aside className="hidden min-h-0 w-80 shrink-0 flex-col gap-4 p-4 xl:flex">
+          <section
+            className={`flex min-h-0 flex-col rounded-lg border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950 ${
+              selectedNode ? "max-h-[45%]" : "flex-1"
+            }`}
+          >
+            <header className="border-b border-zinc-200 px-4 py-3 dark:border-zinc-800">
+              <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-50">
+                Knowledge tree
+              </h2>
+            </header>
+            <div className="min-h-0 flex-1 overflow-y-auto p-4">
+              <KnowledgeTree
+                refreshToken={treeRefreshToken}
+                selectedNodeId={selectedNode?.id}
+                onNodeSelect={(nodeId, title) => {
+                  void handleNodeSelect(nodeId, title);
+                }}
+              />
+            </div>
+          </section>
+
+          {selectedNode ? (
+            <ContextualSidePanel
+              nodeId={selectedNode.id}
+              conversationId={sideConversationId}
+              isConversationLoading={isSideConversationLoading}
+              conversationError={sideConversationError}
+              onClose={handleCloseSidePanel}
+              onNodeConfirmed={() => {
+                setTreeRefreshToken((current) => current + 1);
+              }}
+            />
+          ) : null}
         </aside>
       </div>
     </div>

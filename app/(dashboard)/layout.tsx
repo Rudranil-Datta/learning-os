@@ -27,6 +27,12 @@ export default function DashboardLayout({
           >
             Nodes
           </Link>
+          <Link
+            href="/nodes/tree"
+            className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50"
+          >
+            Tree
+          </Link>
         </nav>
       </header>
       <div className="flex flex-1 flex-col">{children}</div>

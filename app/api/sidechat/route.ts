@@ -1,20 +1,19 @@
 import { NextResponse } from "next/server";
 
 import {
-  createSuggestionService,
+  createSideChatService,
   handleApiError,
   toValidationDetails,
 } from "@/lib/api/error-handler";
 import { ValidationError } from "@/lib/errors/app-error";
-import { confirmSuggestionsSchema } from "@/lib/validation/suggestion.schema";
-import { toConfirmSuggestionsResponse } from "@/types/api";
+import { sideChatRequestSchema } from "@/lib/validation/sidechat.schema";
 
-const suggestionService = createSuggestionService();
+const sideChatService = createSideChatService();
 
 export async function POST(request: Request): Promise<NextResponse> {
   try {
     const body: unknown = await request.json();
-    const parsed = confirmSuggestionsSchema.safeParse(body);
+    const parsed = sideChatRequestSchema.safeParse(body);
 
     if (!parsed.success) {
       throw new ValidationError(
@@ -23,12 +22,9 @@ export async function POST(request: Request): Promise<NextResponse> {
       );
     }
 
-    const result = await suggestionService.confirmSuggestions(
-      parsed.data.suggestionIds,
-      parsed.data.contextNodeId,
-    );
+    const result = await sideChatService.sendMessage(parsed.data);
 
-    return NextResponse.json(toConfirmSuggestionsResponse(result.nodes));
+    return NextResponse.json(result);
   } catch (error: unknown) {
     return handleApiError(error);
   }

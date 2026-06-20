@@ -101,6 +101,44 @@ export class ConversationRepository {
     return mapConversation(row);
   }
 
+  async findByContextNodeId(
+    contextNodeId: string,
+    userId: string,
+  ): Promise<ConversationRecord | null> {
+    const row = await this.db.conversation.findFirst({
+      where: {
+        userId,
+        contextNodeId,
+      },
+      orderBy: { createdAt: "asc" },
+      select: conversationSelect,
+    });
+
+    if (!row) {
+      return null;
+    }
+
+    return mapConversation(row);
+  }
+
+  async getOrCreateSideConversation(
+    contextNodeId: string,
+    userId: string,
+    title: string,
+  ): Promise<ConversationRecord> {
+    const existing = await this.findByContextNodeId(contextNodeId, userId);
+
+    if (existing !== null) {
+      return existing;
+    }
+
+    return this.create({
+      userId,
+      contextNodeId,
+      title,
+    });
+  }
+
   async updateTitle(
     conversationId: string,
     title: string,

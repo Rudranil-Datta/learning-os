@@ -32,9 +32,21 @@ export class SuggestionService {
 
   async confirmSuggestions(
     suggestionIds: readonly string[],
+    contextNodeId?: string,
   ): Promise<ConfirmSuggestionsResult> {
     if (suggestionIds.length === 0) {
       throw new ValidationError("At least one suggestion id is required");
+    }
+
+    if (contextNodeId !== undefined) {
+      const contextNode = await this.knowledgeNodeRepository.findById(
+        contextNodeId,
+        this.userId,
+      );
+
+      if (contextNode === null) {
+        throw new NotFoundError("Knowledge node not found");
+      }
     }
 
     const uniqueIds = [...new Set(suggestionIds)];
@@ -68,6 +80,14 @@ export class SuggestionService {
             },
             tx,
           );
+
+          if (contextNodeId !== undefined) {
+            await this.autoLinkService.linkContextNodeToConfirmedNode(
+              contextNodeId,
+              node.id,
+              tx,
+            );
+          }
 
           createdNodes.push(node);
         }

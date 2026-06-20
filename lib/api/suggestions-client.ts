@@ -99,6 +99,9 @@ export async function confirmSuggestions(
     },
     body: JSON.stringify({
       suggestionIds: request.suggestionIds,
+      ...(request.contextNodeId !== undefined
+        ? { contextNodeId: request.contextNodeId }
+        : {}),
     }),
   });
 

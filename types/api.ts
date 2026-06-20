@@ -72,6 +72,19 @@ export interface ChatResponse {
   readonly suggestedNodes: readonly SuggestedNodeResponse[];
 }
 
+export interface SideChatRequest {
+  readonly message: string;
+  readonly conversationId?: string;
+  readonly contextNodeId: string;
+}
+
+export interface SideChatResponse {
+  readonly answer: string;
+  readonly conversationId: string;
+  readonly contextNodeId: string;
+  readonly suggestedNodes: readonly SuggestedNodeResponse[];
+}
+
 export interface ChatHistoryMessage {
   readonly id: string;
   readonly role: "user" | "assistant";
@@ -94,8 +107,20 @@ export interface ConversationListResponse {
   readonly conversations: readonly ConversationSummaryResponse[];
 }
 
+export interface SideConversationResponse {
+  readonly id: string;
+  readonly contextNodeId: string;
+  readonly title: string;
+  readonly createdAt: string;
+}
+
+export interface GetOrCreateSideConversationRequest {
+  readonly contextNodeId: string;
+}
+
 export interface ConfirmSuggestionsRequest {
   readonly suggestionIds: readonly string[];
+  readonly contextNodeId?: string;
 }
 
 export interface ConfirmSuggestionsResponse {

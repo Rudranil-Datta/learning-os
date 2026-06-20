@@ -73,4 +73,36 @@ export class AutoLinkService {
 
     return { links };
   }
+
+  async linkContextNodeToConfirmedNode(
+    contextNodeId: string,
+    confirmedNodeId: string,
+    db: DbExecutor,
+  ): Promise<NodeLinkRecord | null> {
+    if (contextNodeId === confirmedNodeId) {
+      return null;
+    }
+
+    const exists = await this.linkRepository.linkExists(
+      contextNodeId,
+      confirmedNodeId,
+      "related",
+      this.userId,
+      db,
+    );
+
+    if (exists) {
+      return null;
+    }
+
+    return this.linkRepository.create(
+      {
+        sourceNodeId: contextNodeId,
+        targetNodeId: confirmedNodeId,
+        linkType: "related",
+      },
+      this.userId,
+      db,
+    );
+  }
 }

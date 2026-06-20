@@ -2,6 +2,8 @@ import type {
   ApiErrorResponse,
   ConversationListResponse,
   ConversationSummaryResponse,
+  GetOrCreateSideConversationRequest,
+  SideConversationResponse,
 } from "@/types/api";
 
 export class ConversationsApiError extends Error {
@@ -80,4 +82,19 @@ export async function createConversation(): Promise<ConversationSummaryResponse>
   });
 
   return parseApiResponse<ConversationSummaryResponse>(response);
+}
+
+export async function getOrCreateSideConversation(
+  request: GetOrCreateSideConversationRequest,
+): Promise<SideConversationResponse> {
+  const response = await fetch("/api/conversations/side", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(request),
+    cache: "no-store",
+  });
+
+  return parseApiResponse<SideConversationResponse>(response);
 }

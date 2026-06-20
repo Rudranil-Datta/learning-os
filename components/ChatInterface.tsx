@@ -28,6 +28,7 @@ interface ChatInterfaceProps {
   readonly conversationId: string;
   readonly conversationTitle: string;
   readonly onConversationActivity: () => void;
+  readonly onNodeConfirmed?: () => void;
 }
 
 function createMessageId(): string {
@@ -52,6 +53,7 @@ export function ChatInterface({
   conversationId,
   conversationTitle,
   onConversationActivity,
+  onNodeConfirmed,
 }: ChatInterfaceProps): React.JSX.Element {
   const [messages, setMessages] = useState<readonly DisplayMessage[]>([]);
   const [draft, setDraft] = useState("");
@@ -195,6 +197,7 @@ export function ChatInterface({
       const savedNode = result.nodes[0];
       if (savedNode) {
         setSuccessMessage(`Saved "${savedNode.title}" to your nodes.`);
+        onNodeConfirmed?.();
       }
     } catch (confirmError: unknown) {
       if (isSuggestionsApiError(confirmError)) {

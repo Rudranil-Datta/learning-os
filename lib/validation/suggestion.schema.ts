@@ -7,6 +7,7 @@ export const confirmSuggestionsSchema = z.object({
     .array(suggestionIdSchema)
     .min(1, "At least one suggestion id is required")
     .max(50, "Too many suggestion ids"),
+  contextNodeId: suggestionIdSchema.optional(),
 });
 
 export const suggestionIdParamSchema = z.object({

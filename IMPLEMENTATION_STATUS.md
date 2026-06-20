@@ -1,10 +1,142 @@
 # Current Phase
 
-Phase 3 — **Week 3 Knowledge Tree** (Day 15 done)
+Phase 3 — **Week 3 Side Panel** (Day 19 done)
 
 # Current Task
 
-Day 16 — `KnowledgeTree` component + tree page
+Day 20 — side-panel history reload on reopen
+
+# Day 19 — Task breakdown (complete)
+
+| # | Task | Files | Status |
+|---|------|-------|--------|
+| 1 | Contracts + `SideChatRequest`/`SideChatResponse` | `types/api.ts` | done |
+| 2 | Zod schema | `lib/validation/sidechat.schema.ts` | done |
+| 3 | `NodeExtractor` on side path | `lib/agents/sideOrchestrator.ts` | done |
+| 4 | `SideChatService` | `lib/services/side-chat.service.ts` | done |
+| 5 | Factory + `POST /api/sidechat` | `error-handler.ts`, `app/api/sidechat/route.ts` | done |
+| 6 | API client | `lib/api/sidechat-client.ts` | done |
+| 7 | Panel send + pills + context link on confirm | `ContextualSidePanel.tsx`, `ChatShell.tsx`, confirm path | done |
+| 8 | Tests + doc sync | `scripts/test-sidechat.ts`, `sidechat:test`, this file | done |
+
+## Definition of Done (Day 19)
+
+- [x] `POST /api/sidechat` returns `{ answer, conversationId, contextNodeId, suggestedNodes }`
+- [x] Side orchestrator runs `NodeExtractor`; dedupes vs context + linked titles
+- [x] User + assistant messages + pending suggestions persisted in side conversation
+- [x] Panel: type → send → bubbles + suggestion pills in session
+- [x] Confirm from panel passes `contextNodeId` → `related` link context → new node
+- [x] `npm run sidechat:test` + `npm run build` pass
+- [ ] History reload on reopen (Day 20)
+
+## Smoke verification (Day 19)
+
+- [x] `npm run sidechat:test` passes
+- [x] `npm run side-orchestrator:test` passes
+- [x] `npm run build` passes
+- [ ] Browser: tree click → side chat send → confirm pill (manual)
+
+## Accepted scope vs original roadmap
+
+- **`NodeExtractor` on side path** — included (was optional in `DATAFLOW.md`)
+- **Session-only UI history** — reload deferred Day 20
+- **Confirm context link** — optional `contextNodeId` on confirm API (side panel only)
+
+# Day 18 — Task breakdown (complete)
+
+| # | Task | Files | Status |
+|---|------|-------|--------|
+| 1 | Contracts + `SIDE_PANEL_HISTORY_LIMIT` | `lib/agents/sideOrchestrator.ts` | done |
+| 2 | Node context shape + link summaries | `lib/agents/sideOrchestrator.ts` | done |
+| 3 | Prompt builders | `lib/agents/sideOrchestrator.ts` | done |
+| 4 | `SidePanelOrchestrator` class | `lib/agents/sideOrchestrator.ts` | done |
+| 5 | Deps + factory | `sideOrchestrator.ts`, `error-handler.ts` | done |
+| 6 | Tests | `scripts/test-side-orchestrator.ts`, `side-orchestrator:test` | done |
+| 7 | Doc sync | `IMPLEMENTATION_STATUS.md` | done |
+| 8 | Handoff sync | `CURRENT.md` | done |
+
+## Definition of Done (Day 18)
+
+- [x] `SidePanelOrchestrator.run()` returns answer + conversationId + contextNodeId
+- [x] System prompt includes title, explanation, parent/child/related links
+- [x] Last 5 messages in prompt when present
+- [x] `createSidePanelOrchestratorDeps` + `createSidePanelOrchestrator()` wired
+- [x] `npm run side-orchestrator:test` passes (prompt + stub + factory DB)
+- [x] `npm run build` passes
+- [x] No `/api/sidechat`, no UI send, no message persistence (Day 19–20)
+
+## Smoke verification (Day 18)
+
+- [x] `npm run side-orchestrator:test` passes
+- [x] `npm run build` passes
+
+## Accepted scope vs original roadmap
+
+- **Backend only** — orchestrator + factory; HTTP/UI deferred Day 19
+- **No `NodeExtractor`** on side path — optional per `DATAFLOW.md`
+- **History limit 5** — per `DATAFLOW.md` (main chat uses 10)
+
+# Day 17 — Task breakdown (complete)
+
+| # | Task | Files | Status |
+|---|------|-------|--------|
+| 1 | Side conversation repo | `lib/db/queries/conversations.ts` | done |
+| 2 | Service + `POST /api/conversations/side` | `conversation.service.ts`, `app/api/conversations/side/route.ts`, `conversation.schema.ts` | done |
+| 3 | `ContextualSidePanel` shell | `components/ContextualSidePanel.tsx` | done |
+| 4 | Tree + panel layout in `ChatShell` | `components/ChatShell.tsx` | done |
+| 5 | Wire `onNodeSelect` → side session | `ChatShell.tsx`, `KnowledgeTree.tsx` | done |
+| 6 | API clients | `conversations-client.ts`, `nodes-client.ts` | done |
+| 7 | Tests | `scripts/test-side-conversation.ts`, `side-conversation:test` | done |
+| 8 | Doc sync | `IMPLEMENTATION_STATUS.md`, `CURRENT.md` | done |
+
+## Definition of Done (Day 17)
+
+- [x] Tree click on `/` opens `ContextualSidePanel` with node title + explanation
+- [x] `getOrCreateSideConversation` creates/reuses conv with `context_node_id`
+- [x] Re-click same node → same `conversationId`
+- [x] Main chat sidebar unchanged (main convs only)
+- [x] Disabled chat input placeholder (Day 19)
+- [x] `npm run build` + `side-conversation:test` pass
+
+## Accepted scope vs original roadmap
+
+- **No `/api/sidechat`** — Day 18–19
+- **Right column** — tree top (~45%), panel bottom when node selected
+- **`/nodes/tree` page** — still stub footer; full panel wire optional later
+
+# Day 16 — Task breakdown (complete)
+
+Revised scope: tree in dashboard right column beside chat; refetch on pill confirm.
+
+| # | Task | Files | Status |
+|---|------|-------|--------|
+| 1 | `KnowledgeTree` collapsible component | `components/KnowledgeTree.tsx` | done |
+| 2 | Embed tree in `ChatShell` (replace placeholder column) | `components/ChatShell.tsx` | done |
+| 3 | Live update: confirm → bump `treeRefreshToken` | `components/ChatInterface.tsx`, `ChatShell.tsx` | done |
+| 4 | `/nodes/tree` full-page view + Tree nav | `app/(dashboard)/nodes/tree/page.tsx`, `layout.tsx` | done |
+| 5 | `onNodeSelect` stub (side panel Day 17) | `KnowledgeTree.tsx`, `ChatShell.tsx` | done |
+| 6 | Manual smoke + doc sync | `IMPLEMENTATION_STATUS.md`, `CURRENT.md` | done |
+
+## Definition of Done (Day 16)
+
+- [x] Recursive `ul/li`, `▶` expand/collapse, child count badge, title hover
+- [x] Tree visible beside main chat on `/` (xl+)
+- [x] Confirm pill → tree refetches without page reload
+- [x] `/nodes/tree` standalone page + nav link
+- [x] `npm run build` passes
+- [x] `tree:test` unchanged
+
+## Smoke verification (Day 16)
+
+- [x] `npm run build` passes (`/nodes/tree` route listed)
+- [x] `npm run tree:test` passes
+- [ ] Browser: tree on `/` xl+, confirm pill live update, `/nodes/tree` nav (manual)
+
+## Accepted scope vs original roadmap
+
+- **Tree on `/` right column** — not separate page only; `/nodes/tree` kept as full view
+- **Side panel click** — `onNodeSelect` stub only; contextual chat = Day 17
+- **Live update** — `refreshToken` from confirm, not cross-tab events
 
 # Day 15 — Task breakdown (complete)
 
@@ -321,6 +453,10 @@ User-requested improvements beyond original Week 2 roadmap.
 - Day 13 auto-link on confirm: `LinkRepository`, `AutoLinkService`, wired in confirm txn, extended `suggestions:test`
 - Post–Day 13 UX: `GET /api/chat` history, `GET/POST /api/conversations`, `ChatShell`/`ChatSidebar`, confirm success banner, conversation auto-title
 - Day 15 knowledge tree API: tree types, `LinkRepository.listParentChildEdgesByUserId`, `buildKnowledgeTree`, `GET /api/nodes/tree`, `nodes-client.getKnowledgeTree`, `tree:test`
+- Day 16 knowledge tree UI: `KnowledgeTree`, embedded in `ChatShell`, live refetch on confirm, `/nodes/tree` page, Tree nav, `onNodeSelect` stub
+- Day 17 side panel shell: `getOrCreateSideConversation`, `POST /api/conversations/side`, `ContextualSidePanel`, tree+panel `ChatShell` layout, `side-conversation:test`
+- Day 18 side orchestrator: `SidePanelOrchestrator`, prompt builders, `createSidePanelOrchestrator`, `side-orchestrator:test`
+- Day 19 side chat: `SideChatService`, `POST /api/sidechat`, `sidechat-client`, panel send + pills, context link on confirm, `sidechat:test`
 
 # In Progress
 
@@ -329,7 +465,7 @@ User-requested improvements beyond original Week 2 roadmap.
 # Pending
 
 - Post–Day 6: `pg_trgm`, `websearch_to_tsquery`, pagination
-- Week 3 remainder: tree UI (Day 16), side panel (Days 17–21)
+- Week 3 remainder: side-panel history reload + E2E (Days 20–21)
 - Later: Gemini provider, LangChain (only if RAG/multi-agent needed)
 
 # Definition of Done (Day 6)
