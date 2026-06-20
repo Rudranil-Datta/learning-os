@@ -4,7 +4,11 @@ alwaysApply: true
 
 | Method | Endpoint | Description |
 |---------|---------|---------|
-| POST | `/api/chat` | Main chat endpoint. Accepts `{ message, conversationId? }`. Returns answer and suggested nodes (pending confirmation). |
+| GET | `/api/chat` | Load main chat history. Optional `?conversationId=`. Returns `{ conversationId, messages[] }` with pending `suggestedNodes` on the last assistant message. Without `conversationId`, uses the latest main conversation. |
+| POST | `/api/chat` | Main chat endpoint. Accepts `{ message, conversationId? }`. Returns answer and suggested nodes (pending confirmation). Sets conversation title from first user message when empty. |
+
+| GET | `/api/conversations` | List main chat conversations (`context_node_id` null), sorted by recent activity. Returns `{ conversations: [{ id, title, updatedAt }] }`. |
+| POST | `/api/conversations` | Create a new empty main chat conversation. Returns `{ id, title, updatedAt }` (title starts as `"New chat"`). |
 
 | POST | `/api/sidechat` | Side-panel chat endpoint. Accepts `{ message, conversationId?, contextNodeId }`. The `contextNodeId` must reference an existing node. |
 
@@ -22,6 +26,6 @@ alwaysApply: true
 
 | GET | `/api/nodes/tree` | Return the parent-child hierarchy as a nested structure for knowledge tree visualization. |
 
-| POST | `/api/nodes/suggestions/confirm` | Confirm one or more suggested nodes. Accepts `{ nodeIds }` and creates confirmed nodes. |
+| POST | `/api/nodes/suggestions/confirm` | Confirm one or more suggested nodes. Accepts `{ suggestionIds }` and creates confirmed nodes. |
 
 | DELETE | `/api/nodes/suggestions/:suggestionId` | Reject/remove a suggested node before confirmation. |

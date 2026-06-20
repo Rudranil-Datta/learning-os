@@ -2,6 +2,12 @@
 alwaysApply: true
 ---
 Main Chat Flow
+Page load → GET /api/conversations (sidebar list) + GET /api/chat?conversationId= (messages)
+         │
+User clicks **New chat** → POST /api/conversations → empty thread
+         │
+User selects chat in sidebar → GET /api/chat?conversationId= → reload messages
+         │
 User submits message → POST /api/chat
          │
          ▼
@@ -11,7 +17,7 @@ Orchestrator
   3. Call OpenAI → answer
   4. Call NodeExtractor on answer → array of suggested nodes
   5. Store suggested nodes in pending_node_suggestions (status='pending')
-  6. Save conversation & assistant message
+  6. Save conversation & assistant message; set conversation title from first user message if empty
   7. Return { answer, suggestedNodes, conversationId }
          │
          ▼
@@ -20,7 +26,10 @@ Frontend displays answer + shows suggestion pills (user can confirm/reject)
 User confirms → POST /api/nodes/suggestions/confirm → creates knowledge_nodes
          │
          ▼
-(Optionally) auto‑link: if new node's title appears in existing node explanation → create 'related' link
+Auto‑link: if new node's title appears in existing node explanation → create 'related' link
+         │
+         ▼
+Frontend shows success banner; confirmed nodes visible on GET /api/nodes
 
 
 

@@ -1,12 +1,15 @@
 import { Prisma } from "@/app/generated/prisma/client";
 import { DEFAULT_USER_ID } from "@/lib/constants/user";
+import { LinkRepository } from "@/lib/db/queries/links";
 import { KnowledgeNodeRepository } from "@/lib/db/queries/nodes";
 import { ConflictError, NotFoundError } from "@/lib/errors/app-error";
 import { normalizeSearchQuery } from "@/lib/utils/search";
+import { buildKnowledgeTree } from "@/lib/utils/tree";
 import type {
   CreateKnowledgeNodeInput,
   KnowledgeNodeRecord,
   KnowledgeNodeWithLinks,
+  KnowledgeTreeNode,
   UpdateKnowledgeNodeInput,
 } from "@/types/database";
 
@@ -19,6 +22,7 @@ function isUniqueConstraintError(error: unknown): boolean {
 export class KnowledgeNodeService {
   constructor(
     private readonly repository: KnowledgeNodeRepository,
+    private readonly linkRepository: LinkRepository,
     private readonly userId: string = DEFAULT_USER_ID,
   ) {}
 
@@ -34,6 +38,20 @@ export class KnowledgeNodeService {
     }
 
     return this.repository.searchByUserId(this.userId, normalizedQuery);
+  }
+
+  async getKnowledgeTree(): Promise<readonly KnowledgeTreeNode[]> {
+    const [edges, nodes] = await Promise.all([
+      this.linkRepository.listParentChildEdgesByUserId(this.userId),
+      this.repository.listByUserId(this.userId),
+    ]);
+
+    const summaries = nodes.map((node) => ({
+      id: node.id,
+      title: node.title,
+    }));
+
+    return buildKnowledgeTree(edges, summaries);
   }
 
   async getNodeById(id: string): Promise<KnowledgeNodeWithLinks> {

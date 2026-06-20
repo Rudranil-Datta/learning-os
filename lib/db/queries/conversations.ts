@@ -81,4 +81,85 @@ export class ConversationRepository {
 
     return this.create({ userId, contextNodeId: null });
   }
+
+  async findLatestMainConversation(
+    userId: string,
+  ): Promise<ConversationRecord | null> {
+    const row = await this.db.conversation.findFirst({
+      where: {
+        userId,
+        contextNodeId: null,
+      },
+      orderBy: { createdAt: "desc" },
+      select: conversationSelect,
+    });
+
+    if (!row) {
+      return null;
+    }
+
+    return mapConversation(row);
+  }
+
+  async updateTitle(
+    conversationId: string,
+    title: string,
+    userId: string,
+  ): Promise<void> {
+    await this.db.conversation.updateMany({
+      where: {
+        id: conversationId,
+        userId,
+      },
+      data: { title },
+    });
+  }
+
+  async listMainConversations(
+    userId: string,
+    limit: number,
+  ): Promise<
+    readonly {
+      id: string;
+      title: string | null;
+      createdAt: Date;
+      lastMessageAt: Date | null;
+      lastMessagePreview: string | null;
+    }[]
+  > {
+    const rows = await this.db.conversation.findMany({
+      where: {
+        userId,
+        contextNodeId: null,
+      },
+      select: {
+        id: true,
+        title: true,
+        createdAt: true,
+        messages: {
+          select: {
+            content: true,
+            createdAt: true,
+          },
+          orderBy: { createdAt: "desc" },
+          take: 1,
+        },
+      },
+    });
+
+    return rows
+      .map((row) => ({
+        id: row.id,
+        title: row.title,
+        createdAt: row.createdAt,
+        lastMessageAt: row.messages[0]?.createdAt ?? null,
+        lastMessagePreview: row.messages[0]?.content ?? null,
+      }))
+      .sort((left, right) => {
+        const leftTime = (left.lastMessageAt ?? left.createdAt).getTime();
+        const rightTime = (right.lastMessageAt ?? right.createdAt).getTime();
+        return rightTime - leftTime;
+      })
+      .slice(0, limit);
+  }
 }

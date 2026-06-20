@@ -1,5 +1,7 @@
 import type {
   CreateKnowledgeNodeInput,
+  KnowledgeNodeRecord,
+  KnowledgeTreeNode,
   LinkType,
   NodeLinksGrouped,
   NodeMetadata,
@@ -43,6 +45,10 @@ export interface KnowledgeNodeListResponse {
   readonly nodes: readonly KnowledgeNodeResponse[];
 }
 
+export interface KnowledgeTreeResponse {
+  readonly tree: readonly KnowledgeTreeNode[];
+}
+
 export interface ApiErrorResponse {
   readonly error: string;
   readonly code: string;
@@ -66,6 +72,36 @@ export interface ChatResponse {
   readonly suggestedNodes: readonly SuggestedNodeResponse[];
 }
 
+export interface ChatHistoryMessage {
+  readonly id: string;
+  readonly role: "user" | "assistant";
+  readonly content: string;
+  readonly suggestedNodes?: readonly SuggestedNodeResponse[];
+}
+
+export interface ChatHistoryResponse {
+  readonly conversationId: string | null;
+  readonly messages: readonly ChatHistoryMessage[];
+}
+
+export interface ConversationSummaryResponse {
+  readonly id: string;
+  readonly title: string;
+  readonly updatedAt: string;
+}
+
+export interface ConversationListResponse {
+  readonly conversations: readonly ConversationSummaryResponse[];
+}
+
+export interface ConfirmSuggestionsRequest {
+  readonly suggestionIds: readonly string[];
+}
+
+export interface ConfirmSuggestionsResponse {
+  readonly nodes: readonly KnowledgeNodeResponse[];
+}
+
 export function toSuggestedNodeResponse(
   record: PendingNodeSuggestionRecord,
 ): SuggestedNodeResponse {
@@ -82,7 +118,12 @@ export function toSuggestedNodeResponses(
   return records.map(toSuggestedNodeResponse);
 }
 
-export type { CreateKnowledgeNodeInput, LinkType, UpdateKnowledgeNodeInput };
+export type {
+  CreateKnowledgeNodeInput,
+  KnowledgeTreeNode,
+  LinkType,
+  UpdateKnowledgeNodeInput,
+};
 
 export function toCreateKnowledgeNodeInput(
   request: CreateKnowledgeNodeRequest,
@@ -129,6 +170,14 @@ export function toKnowledgeNodeResponse(node: {
     userId: node.userId,
     createdAt: node.createdAt.toISOString(),
     updatedAt: node.updatedAt.toISOString(),
+  };
+}
+
+export function toConfirmSuggestionsResponse(
+  nodes: readonly KnowledgeNodeRecord[],
+): ConfirmSuggestionsResponse {
+  return {
+    nodes: nodes.map(toKnowledgeNodeResponse),
   };
 }
 

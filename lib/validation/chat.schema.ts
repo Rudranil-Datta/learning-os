@@ -7,4 +7,9 @@ export const chatRequestSchema = z.object({
   conversationId: uuidSchema.optional(),
 });
 
+export const chatHistoryQuerySchema = z.object({
+  conversationId: uuidSchema.optional(),
+});
+
 export type ChatRequestSchema = z.infer<typeof chatRequestSchema>;
+export type ChatHistoryQuerySchema = z.infer<typeof chatHistoryQuerySchema>;

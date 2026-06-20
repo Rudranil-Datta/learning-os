@@ -31,6 +31,13 @@ export interface LinkedNodeSummary {
   readonly title: string;
 }
 
+/** Nested parent-child node for knowledge tree (parent links only). */
+export interface KnowledgeTreeNode {
+  readonly id: string;
+  readonly title: string;
+  readonly children: readonly KnowledgeTreeNode[];
+}
+
 export interface NodeLinksGrouped {
   readonly parents: readonly LinkedNodeSummary[];
   readonly children: readonly LinkedNodeSummary[];
@@ -88,4 +95,32 @@ export interface CreatePendingNodeSuggestionInput {
   readonly title: string;
   readonly description?: string | null;
   readonly status?: SuggestionStatus;
+}
+
+export interface NodeLinkRecord {
+  readonly id: string;
+  readonly sourceNodeId: string;
+  readonly targetNodeId: string;
+  readonly linkType: LinkType;
+  readonly userId: string;
+  readonly createdAt: Date;
+}
+
+export interface CreateNodeLinkInput {
+  readonly sourceNodeId: string;
+  readonly targetNodeId: string;
+  readonly linkType: LinkType;
+}
+
+export interface NodeExplanationCandidate {
+  readonly id: string;
+  readonly explanation: string;
+}
+
+/** Normalized parent→child edge for tree building (`link_type='parent'`). */
+export interface ParentChildTreeEdge {
+  readonly parentId: string;
+  readonly parentTitle: string;
+  readonly childId: string;
+  readonly childTitle: string;
 }

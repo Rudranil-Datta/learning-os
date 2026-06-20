@@ -1,11 +1,10 @@
 import type {
   ApiErrorResponse,
-  ChatHistoryResponse,
-  ChatRequest,
-  ChatResponse,
+  ConversationListResponse,
+  ConversationSummaryResponse,
 } from "@/types/api";
 
-export class ChatApiError extends Error {
+export class ConversationsApiError extends Error {
   readonly statusCode: number;
   readonly code: string;
   readonly details?: unknown;
@@ -17,15 +16,17 @@ export class ChatApiError extends Error {
     details?: unknown,
   ) {
     super(message);
-    this.name = "ChatApiError";
+    this.name = "ConversationsApiError";
     this.statusCode = statusCode;
     this.code = code;
     this.details = details;
   }
 }
 
-export function isChatApiError(error: unknown): error is ChatApiError {
-  return error instanceof ChatApiError;
+export function isConversationsApiError(
+  error: unknown,
+): error is ConversationsApiError {
+  return error instanceof ConversationsApiError;
 }
 
 async function parseApiResponse<T>(response: Response): Promise<T> {
@@ -42,7 +43,7 @@ async function parseApiResponse<T>(response: Response): Promise<T> {
     ) {
       const errorBody = body as ApiErrorResponse;
 
-      throw new ChatApiError(
+      throw new ConversationsApiError(
         errorBody.error,
         response.status,
         errorBody.code,
@@ -50,7 +51,7 @@ async function parseApiResponse<T>(response: Response): Promise<T> {
       );
     }
 
-    throw new ChatApiError(
+    throw new ConversationsApiError(
       "Request failed",
       response.status,
       "INTERNAL_ERROR",
@@ -60,32 +61,23 @@ async function parseApiResponse<T>(response: Response): Promise<T> {
   return body as T;
 }
 
-export async function sendMessage(
-  request: ChatRequest,
-): Promise<ChatResponse> {
-  const response = await fetch("/api/chat", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(request),
-  });
-
-  return parseApiResponse<ChatResponse>(response);
-}
-
-export async function fetchChatHistory(
-  conversationId?: string,
-): Promise<ChatHistoryResponse> {
-  const url =
-    conversationId === undefined
-      ? "/api/chat"
-      : `/api/chat?conversationId=${encodeURIComponent(conversationId)}`;
-
-  const response = await fetch(url, {
+export async function listConversations(): Promise<
+  readonly ConversationSummaryResponse[]
+> {
+  const response = await fetch("/api/conversations", {
     method: "GET",
     cache: "no-store",
   });
 
-  return parseApiResponse<ChatHistoryResponse>(response);
+  const data = await parseApiResponse<ConversationListResponse>(response);
+
+  return data.conversations;
+}
+
+export async function createConversation(): Promise<ConversationSummaryResponse> {
+  const response = await fetch("/api/conversations", {
+    method: "POST",
+  });
+
+  return parseApiResponse<ConversationSummaryResponse>(response);
 }

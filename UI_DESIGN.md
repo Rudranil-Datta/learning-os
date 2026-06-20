@@ -15,21 +15,23 @@ The UI follows a **node‑first** mental model. Everything revolves around knowl
 ## Pages / Layouts
 
 ### 1. Dashboard (Default View)
-- **Layout:** Three‑column or two‑column with a collapsible left sidebar.
-- **Left sidebar (optional):** Quick access to nodes list, tree, search.
-- **Centre:** Main chat interface.
-- **Right:** Contextual side panel (initially collapsed or showing a placeholder like “Select a node to start exploring”).
+- **Layout:** Three zones — **chat history sidebar (left)**, **main chat (centre)**, **contextual side panel (right, xl+)**.
+- **Left sidebar:** List of past main chats (ChatGPT-style). **New chat** button at top. Click a chat to switch. Titles from first user message (or `"New chat"` until first send).
+- **Centre:** Active conversation — messages, input, suggestion pills.
+- **Right:** Contextual side panel placeholder (“Select a node to explore”) — Week 3 side-panel chat.
 
-**When side panel is closed:** The chat occupies the full width.
+**Mobile:** Left sidebar hidden; conversation picker dropdown + **New** at top of main chat.
+
+**When side panel is closed / narrow viewport:** Chat history sidebar + main chat fill the width.
 
 ---
 
 ### 2. Chat Interface (Centre)
-- **Top:** A header showing conversation title (e.g., “Chat about algorithms”).
-- **Scrollable message area:** User messages (right‑aligned) and assistant messages (left‑aligned).
+- **Top:** Header showing **conversation title** (e.g. truncated first message).
+- **Scrollable message area:** User messages (right‑aligned) and assistant messages (left‑aligned). **History loaded from DB** when selecting a chat or on page refresh.
 - **Message composition:** Text input at the bottom with a Send button.
-- **Suggestion pills:** After each assistant message, a horizontal row of chip buttons appears below the answer – each representing a suggested node. User can click to confirm (turns green) or dismiss (cross icon). Confirmed nodes are created immediately (or after a batch confirmation).
-- **Loading states:** Typing indicator while waiting for AI response.
+- **Suggestion pills:** After each assistant message, a horizontal row of chip buttons appears below the answer – each representing a suggested node. User can click to confirm (green ✓) or dismiss (red ✕). On confirm: green success banner **“Saved … to your nodes”** with link to `/nodes`.
+- **Loading states:** “Loading conversation…” on switch; typing indicator while waiting for AI response.
 
 ---
 
@@ -135,16 +137,33 @@ The UI follows a **node‑first** mental model. Everything revolves around knowl
 - **Side panel:** White background, subtle border on the left.
 - **Tree:** Indent with hover effect on node titles.
 
-Responsive: On mobile, side panel becomes a bottom sheet or full‑screen overlay; tree page becomes a separate view.
+Responsive: On mobile, chat history uses a dropdown; side panel hidden until Week 3; tree page remains a separate view.
+
+---
+
+## Implemented layout (post–Day 13)
+
+```
+┌──────────────┬─────────────────────────┬─────────────────┐
+│ Chat history │ Main chat               │ Node explorer   │
+│ (sidebar)    │ (messages + input)      │ (placeholder)   │
+│ New chat     │                         │                 │
+│ · Chat 1     │                         │                 │
+│ · Chat 2     │                         │                 │
+└──────────────┴─────────────────────────┴─────────────────┘
+```
+
+Nodes list: top nav **Nodes** → `/nodes` (not the left sidebar).
 
 ---
 
 ## Implementation Notes for Coding Agent
 
 - Use React Server Components where possible, but chat and side panel need client components (interactivity).
-- State management: React Context for side panel state (which node is active), local state for chat messages.
+- **`ChatShell`** owns selected conversation id, sidebar list, and **New chat**; **`ChatInterface`** receives `conversationId` as prop.
+- Selected conversation id persisted in `localStorage` (`learning-os.mainConversationId`).
 - Use Tailwind classes directly – no custom CSS unless necessary.
-- The layout should be a grid: `grid-cols-1 lg:grid-cols-3` (main chat takes 2 columns, side panel takes 1).
-- Keep side panel as a separate component that receives `nodeId` as prop.
+- Main dashboard: full-width flex — sidebar `md+`, main chat flex-1, side panel `xl+`.
+- Keep side panel as a separate component that receives `nodeId` as prop (Week 3).
 
 This UI design aligns with the V1 requirements and provides a clean, focused experience that highlights the core workflow.

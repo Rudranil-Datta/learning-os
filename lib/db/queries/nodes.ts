@@ -50,6 +50,8 @@ function toInputJsonValue(metadata: NodeMetadata): Prisma.InputJsonValue {
   return metadata as Prisma.InputJsonValue;
 }
 
+type DbExecutor = PrismaClient | Prisma.TransactionClient;
+
 type KnowledgeNodeSearchRow = {
   id: string;
   title: string;
@@ -233,8 +235,9 @@ export class KnowledgeNodeRepository {
   async create(
     data: CreateKnowledgeNodeInput,
     userId: string,
+    db: DbExecutor = this.db,
   ): Promise<KnowledgeNodeRecord> {
-    const row = await this.db.knowledgeNode.create({
+    const row = await db.knowledgeNode.create({
       data: {
         title: data.title,
         description: data.description ?? null,

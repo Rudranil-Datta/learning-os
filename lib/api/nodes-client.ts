@@ -3,6 +3,8 @@ import type {
   CreateKnowledgeNodeRequest,
   KnowledgeNodeListResponse,
   KnowledgeNodeResponse,
+  KnowledgeTreeNode,
+  KnowledgeTreeResponse,
 } from "@/types/api";
 
 export class NodesApiError extends Error {
@@ -76,6 +78,17 @@ export async function listNodes(
   const data = await parseApiResponse<KnowledgeNodeListResponse>(response);
 
   return data.nodes;
+}
+
+export async function getKnowledgeTree(): Promise<readonly KnowledgeTreeNode[]> {
+  const response = await fetch("/api/nodes/tree", {
+    method: "GET",
+    cache: "no-store",
+  });
+
+  const data = await parseApiResponse<KnowledgeTreeResponse>(response);
+
+  return data.tree;
 }
 
 export async function createNode(

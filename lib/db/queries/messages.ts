@@ -96,4 +96,20 @@ export class MessageRepository {
       .filter((message): message is MessageRecord => message !== null)
       .reverse();
   }
+
+  async listByConversation(
+    conversationId: string,
+    limit: number,
+  ): Promise<readonly MessageRecord[]> {
+    const rows = await this.db.message.findMany({
+      where: { conversationId },
+      select: messageSelect,
+      orderBy: { createdAt: "asc" },
+      take: limit,
+    });
+
+    return rows
+      .map((row) => mapMessage(row))
+      .filter((message): message is MessageRecord => message !== null);
+  }
 }

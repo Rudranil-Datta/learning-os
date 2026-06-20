@@ -1,10 +1,152 @@
 # Current Phase
 
-Phase 2 — Week 2 Main Chat (Day 11 complete)
+Phase 3 — **Week 3 Knowledge Tree** (Day 15 done)
 
 # Current Task
 
-Day 12 — Suggestion pills (confirm/dismiss) + confirm/reject API
+Day 16 — `KnowledgeTree` component + tree page
+
+# Day 15 — Task breakdown (complete)
+
+| # | Task | Script / files | Status |
+|---|------|----------------|--------|
+| 1 | Tree response types | `types/database.ts`, `types/api.ts` | done |
+| 2 | Link repo: parent edges | `lib/db/queries/links.ts` | done |
+| 3 | Tree builder util | `lib/utils/tree.ts` | done |
+| 4 | `getKnowledgeTree()` service | `lib/services/knowledge-node.service.ts`, `lib/api/error-handler.ts` | done |
+| 5 | `GET /api/nodes/tree` route | `app/api/nodes/tree/route.ts` | done |
+| 6 | Factory wiring | `lib/api/error-handler.ts` | done |
+| 7 | API client | `lib/api/nodes-client.ts` | done |
+| 8 | Deterministic tests | `scripts/test-tree.ts`, `npm run tree:test` | done |
+| 9 | Doc sync | `IMPLEMENTATION_STATUS.md`, `CURRENT.md` | done |
+
+## Definition of Done (Day 15)
+
+- [x] `GET /api/nodes/tree` → `{ tree: [{ id, title, children }] }`
+- [x] Parent–child hierarchy only (`link_type='parent'`); `related` excluded
+- [x] Orphans as roots; multi-parent first edge wins; cycle-safe build
+- [x] `npm run tree:test` passes
+- [x] `npm run build` passes
+- [x] No UI changes (tree page + component = Day 16)
+
+## Accepted scope vs original roadmap
+
+- **Backend only** — `KnowledgeTree.tsx` / `/nodes/tree` deferred to Day 16
+- **`child` link rows** — normalized in `lib/utils/tree.ts`; repo fetches `parent` edges only (matches `DATABASE_DESIGN.md`)
+- **Manual link API** (`POST /api/nodes/:id/links`) still pending — tree test seeds links via repo
+
+# Day 14 — Task breakdown (complete)
+
+| # | Task | Script / files | Status |
+|---|------|----------------|--------|
+| 1 | Coverage audit vs existing scripts | audit in `CURRENT.md` | done |
+| 2 | Deterministic edge tests (no LLM) | `npm run main-chat:edges:test` | done |
+| 3 | E2E: conversations → chat → confirm/dismiss | `npm run main-chat:e2e:test` | done |
+| 4 | Conversation API tests | `npm run conversations:test` | done |
+| 5 | Fix gaps from audit | no bugs found | N/A |
+| 6 | Manual browser checklist | `/` on port **3003** — API proxy verified; visual MCP blocked | done |
+| 7 | Doc sync | `IMPLEMENTATION_STATUS.md`, `API_DESIGN.md` | done |
+
+## Definition of Done (Day 14)
+
+- [x] `npm run build` passes
+- [x] `main-chat:edges:test`, `main-chat:e2e:test`, `conversations:test` pass
+- [x] Existing `chat:test`, `suggestions:test`, `extractor:test` unchanged
+- [x] Week 2 Main Chat marked complete
+
+# Post–Day 13 UX enhancements (complete)
+
+User-requested improvements beyond original Week 2 roadmap.
+
+| # | Feature | Files | Status |
+|---|---------|-------|--------|
+| 1 | Load main chat history on mount / switch | `GET /api/chat`, `ChatService.getMainChatHistory`, `lib/api/chat-client.ts` | done |
+| 2 | Multi-conversation sidebar (ChatGPT-style) | `ChatShell.tsx`, `ChatSidebar.tsx`, `app/(dashboard)/page.tsx` | done |
+| 3 | List + create main conversations | `GET/POST /api/conversations`, `ConversationService`, `conversations-client.ts` | done |
+| 4 | Auto-title chat from first user message | `ConversationRepository.updateTitle`, `ChatService.sendMessage` | done |
+| 5 | Confirm success feedback + link to nodes | `ChatInterface.tsx` | done |
+| 6 | Persist selected chat in browser | `lib/constants/chat-storage.ts` (`learning-os.mainConversationId`) | done |
+
+## Definition of Done (UX enhancements)
+
+- [x] Left sidebar lists past main chats; **New chat** creates empty conversation
+- [x] Selecting a chat loads messages from DB; refresh restores last selected chat
+- [x] Pending suggestion pills restore on last assistant message after reload
+- [x] Confirm shows green “Saved … to your nodes” with link to `/nodes`
+- [x] Mobile: conversation dropdown + New button (sidebar hidden on small screens)
+- [x] Right panel remains Week 3 placeholder; confirmed nodes on `/nodes`
+
+## Accepted scope vs original UI plan
+
+- **Left sidebar = chat history** (not nodes list/tree — those stay in top nav)
+- **Pending pills** not tied to specific message row in DB (attach to last assistant on reload)
+- **No delete/rename** conversation in V1
+
+# Day 13 — Task breakdown (complete)
+
+| # | Task | Files | Status |
+|---|------|-------|--------|
+| 1 | Link repository | `lib/db/queries/links.ts`, `types/database.ts` | done |
+| 2 | Auto-link match + create `related` links | `lib/utils/auto-link.ts`, `lib/services/auto-link.service.ts` | done |
+| 3 | Wire into confirm txn | `lib/services/suggestion.service.ts` | done |
+| 4 | Factory wiring | `lib/api/error-handler.ts` | done |
+| 5 | Extend `suggestions:test` | `scripts/test-suggestions.ts` | done |
+| 6 | Milestone update | `IMPLEMENTATION_STATUS.md` | done |
+
+## Definition of Done (Day 13)
+
+- [x] Confirm → scan other nodes' **explanation** for new **title** (case-insensitive)
+- [x] Match → create `related` link **existing → new** inside confirm txn
+- [x] Skip self, duplicate links, titles shorter than 3 chars; cap 20 links per node
+- [x] Zero matches → confirm still succeeds
+- [x] No UI/API surface change; no tree refresh
+
+## Smoke verification (Day 13)
+
+- [x] `npm run build` passes
+- [x] `npm run suggestions:test` passes (auto-link + existing confirm/reject paths)
+
+## Accepted scope vs original roadmap
+
+- **Explanation only** — not `description`
+- **Required feature** for Day 13 (DATAFLOW "optional" = non-blocking, not skip)
+- **Link direction:** existing node → confirmed node
+- **Reject path:** delete pending row unchanged from Day 12
+
+# Day 12 — Task breakdown (complete)
+
+| # | Task | Files | Status |
+|---|------|-------|--------|
+| 1 | Suggestion repo: find pending, delete | `lib/db/queries/suggestions.ts` | done |
+| 2 | `SuggestionService` confirm + reject | `lib/services/suggestion.service.ts`, `lib/db/queries/nodes.ts` (tx on create) | done |
+| 3 | Zod + API types (`suggestionIds`) | `lib/validation/suggestion.schema.ts`, `types/api.ts` | done |
+| 4 | Confirm/reject routes + factory | `app/api/nodes/suggestions/confirm/route.ts`, `app/api/nodes/suggestions/[suggestionId]/route.ts`, `lib/api/error-handler.ts` | done |
+| 5 | Suggestions API client | `lib/api/suggestions-client.ts` | done |
+| 6 | Interactive pills UI | `components/SuggestionChip.tsx`, `components/ChatInterface.tsx` | done |
+| 7 | `suggestions:test` + milestone update | `scripts/test-suggestions.ts`, `package.json`, `IMPLEMENTATION_STATUS.md` | done |
+
+## Definition of Done (Day 12)
+
+- [x] Confirm pill → `POST /api/nodes/suggestions/confirm` with `{ suggestionIds }` → node in DB, pending row removed, pill gone
+- [x] Dismiss pill → `DELETE /api/nodes/suggestions/:suggestionId` → pending cleared, pill gone
+- [x] 409 duplicate title surfaced in chat error alert
+- [x] Per-pill loading; one suggestion action at a time
+- [x] Green confirm / red dismiss per `UI_DESIGN.md`
+- [x] No auto-link (Day 13), no tree refresh
+
+## Smoke verification (Day 12)
+
+- [x] `npm run build` passes
+- [x] `npm run suggestions:test` passes (confirm, reject, duplicate title conflict)
+- [ ] Browser: confirm + dismiss pills on `/` (manual)
+
+## Accepted scope vs original roadmap
+
+- **`API_DESIGN.md`:** confirm body uses `suggestionIds` (not `nodeIds`)
+- **Reject:** delete pending row (not `rejected` status audit)
+- **Per-pill confirm** (not batch UI); API still accepts array
+- **`SuggestionChip.tsx`** kept (not renamed to `SuggestionPills.tsx`)
+- **Auto-link on confirm** — Day 13
 
 # Day 11 — Task breakdown (complete)
 
@@ -175,6 +317,10 @@ Day 12 — Suggestion pills (confirm/dismiss) + confirm/reject API
 - Day 9 node extractor: `NodeExtractor`, orchestrator wiring, `suggestedNodes` in API, `extractor:test` + `chat:test`
 - Day 10 suggestion persistence: `pending_node_suggestions` table, `SuggestionRepository`, transactional save in `ChatService`, `id` in API response, `chat:test` DB verification
 - Day 11 chat UI: `chat-client`, `ChatInterface`, read-only suggestion chips, dashboard grid + side panel placeholder at `/`
+- Day 12 suggestion confirm/reject: `SuggestionService`, confirm/reject API routes, `suggestions-client`, interactive pills, `suggestions:test`
+- Day 13 auto-link on confirm: `LinkRepository`, `AutoLinkService`, wired in confirm txn, extended `suggestions:test`
+- Post–Day 13 UX: `GET /api/chat` history, `GET/POST /api/conversations`, `ChatShell`/`ChatSidebar`, confirm success banner, conversation auto-title
+- Day 15 knowledge tree API: tree types, `LinkRepository.listParentChildEdgesByUserId`, `buildKnowledgeTree`, `GET /api/nodes/tree`, `nodes-client.getKnowledgeTree`, `tree:test`
 
 # In Progress
 
@@ -182,9 +328,8 @@ Day 12 — Suggestion pills (confirm/dismiss) + confirm/reject API
 
 # Pending
 
-- Day 12–14: Suggestion pills (confirm/dismiss), confirm/reject API, auto-link, e2e main chat
 - Post–Day 6: `pg_trgm`, `websearch_to_tsquery`, pagination
-- Week 3: knowledge tree + side panel
+- Week 3 remainder: tree UI (Day 16), side panel (Days 17–21)
 - Later: Gemini provider, LangChain (only if RAG/multi-agent needed)
 
 # Definition of Done (Day 6)
